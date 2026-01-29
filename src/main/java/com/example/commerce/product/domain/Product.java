@@ -29,4 +29,12 @@ public class Product extends BaseTimeEntity {
     @JoinColumn(name = "member_id",foreignKey = @ForeignKey(ConstraintMode.CONSTRAINT),nullable = false)
     private Member member;
 
+    private String imagePathUrl;
+
+    public void updateProductImage(String imagePathUrl){
+        this.imagePathUrl=imagePathUrl;
+
+
+    }
+
 }

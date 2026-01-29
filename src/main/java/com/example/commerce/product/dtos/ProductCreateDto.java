@@ -23,7 +23,7 @@ public class ProductCreateDto {
                 .price(this.price)
                 .category(this.category)
                 .stockQuantity(this.stockQuantuty)
-                .productImage(this.productImage)
+                .imagePath(this.imagePath)
                 .build();
     }
 }
