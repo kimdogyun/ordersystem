@@ -1,23 +1,35 @@
 package com.example.commerce.ordering.controller;
 
-import com.example.commerce.ordering.service.OderingService;
+import com.example.commerce.ordering.dtos.OderingCreateDto;
+import com.example.commerce.ordering.service.OrderingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/ordering")
 public class OderingController {
-    private final OderingService oderingService;
+    private final OrderingService orderingService;
     @Autowired
-    public OderingController(OderingService oderingService) {
-        this.oderingService = oderingService;
+    public OderingController(OrderingService orderingService) {
+        this.orderingService = orderingService;
     }
     @PostMapping("/create")
-    public Long create(){
+    public ResponseEntity<?> create(@RequestBody List<OderingCreateDto>dtoList){
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Long orderingId = orderingService.create(email, dtoList);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(orderingId);
 
     }
 }

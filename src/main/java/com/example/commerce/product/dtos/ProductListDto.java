@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductListdDto {
+public class ProductListDto {
     private Long id;
     private String name;
     private String category;
@@ -18,8 +18,8 @@ public class ProductListdDto {
     private int stockQuantity;
     private String imagePath;
 
-    public static ProductListdDto fromEntity(Product product){
-        return ProductListdDto.builder()
+    public static ProductListDto fromEntity(Product product){
+        return ProductListDto.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .category(product.getCategory())

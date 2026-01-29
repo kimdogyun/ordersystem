@@ -3,7 +3,7 @@ package com.example.commerce.product.controller;
 import com.example.commerce.product.domain.Product;
 import com.example.commerce.product.dtos.ProductCreateDto;
 import com.example.commerce.product.dtos.ProductDetailDto;
-import com.example.commerce.product.dtos.ProductListdDto;
+import com.example.commerce.product.dtos.ProductListDto;
 import com.example.commerce.product.dtos.ProductSearchDto;
 import com.example.commerce.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/product")
-public class productController {
+public class ProductController {
     private final ProductService productService;
     @Autowired
-    public productController(ProductService productService) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
@@ -33,7 +33,7 @@ public class productController {
 
     }
     @GetMapping("/list")
-    public Page<ProductListdDto>findAll(@PageableDefault(size = 10,sort="id",direction = Sort.Direction.DESC)
+    public Page<ProductListDto>findAll(@PageableDefault(size = 10,sort="id",direction = Sort.Direction.DESC)
                                         Pageable pageable, @ModelAttribute ProductSearchDto searchDto){
         return productService.findAll(pageable,searchDto);
 

@@ -3,7 +3,7 @@ package com.example.commerce.product.service;
 import com.example.commerce.product.domain.Product;
 import com.example.commerce.product.dtos.ProductCreateDto;
 import com.example.commerce.product.dtos.ProductDetailDto;
-import com.example.commerce.product.dtos.ProductListdDto;
+import com.example.commerce.product.dtos.ProductListDto;
 import com.example.commerce.product.dtos.ProductSearchDto;
 import com.example.commerce.product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -37,7 +37,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Page<ProductListdDto> findAll(Pageable pageable, ProductSearchDto searchdto) {
+    public Page<ProductListDto> findAll(Pageable pageable, ProductSearchDto searchdto) {
         Specification<Product> specification = new Specification<Product>() {
             @Override
             public Predicate toPredicate(Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
@@ -59,7 +59,7 @@ public class ProductService {
             }
         };
         Page<Product> productPage = productRepository.findAll(specification, pageable);
-        return productPage.map(p -> ProductListdDto.fromEntity(p));
+        return productPage.map(p -> ProductListDto.fromEntity(p));
 
 
     }
