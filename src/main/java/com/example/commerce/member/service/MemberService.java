@@ -1,0 +1,63 @@
+package com.example.commerce.member.service;
+
+import com.example.commerce.member.domain.Member;
+import com.example.commerce.member.dtos.MemberCreateDto;
+import com.example.commerce.member.dtos.MemberListDto;
+import com.example.commerce.member.dtos.MemberUpdatePasswordDto;
+import com.example.commerce.member.dtos.MemberloginDto;
+import com.example.commerce.member.repository.MemberRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class MemberService {
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+        this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public void save(MemberCreateDto dto) {
+        if (memberRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("이메일 중복임");
+        }
+
+        Member member = dto.toENtity(passwordEncoder.encode(dto.getPassword()));
+        memberRepository.save(member);
+    }
+
+    public Member login(MemberloginDto dto) {
+        Optional<Member> optionalMember = memberRepository.findByEmail(dto.getEmail());
+        boolean check = true;
+        if (!optionalMember.isPresent()) {
+            check = false;
+        }if (!passwordEncoder.matches(dto.getPassword(),optionalMember.get().getPassword())){
+            check = false;
+        }if (!check){
+            throw new IllegalArgumentException("이메일 또는 비밀번호 중복임.");
+        }
+        return optionalMember.get();
+    }
+    public void updatepassword(MemberUpdatePasswordDto dto){
+    Optional<Member>optionalMember=memberRepository.findByEmail(dto.getEmail());
+    Member member = optionalMember.orElseThrow(()->new EntityNotFoundException("X"));
+    member.updatePassword(dto.getPassword());
+
+    }
+    public List<MemberListDto> findAll(){
+        return memberRepository.findAll().stream().map(m->MemberListDto.fromEntity(m)).collect((Collectors.toList()));
+
+    }
+}
