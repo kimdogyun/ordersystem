@@ -1,5 +1,6 @@
 package com.example.commerce.common.exception;
 
+import com.example.commerce.common.dtos.CommonErrorDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

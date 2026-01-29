@@ -10,14 +10,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MemberloginDto {
+public class MemberDetailDto {
+    private Long id;
+    private String name;
     private String email;
-    private String password;
 
-    public static MemberloginDto fromEntity(Member member){
-        return MemberloginDto.builder()
+
+
+    public static MemberDetailDto fromEntity(Member member){
+        return MemberDetailDto.builder()
+                .id(member.getId())
+                .name(member.getName())
                 .email(member.getEmail())
-                .password(member.getPassword())
                 .build();
     }
 

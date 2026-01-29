@@ -1,5 +1,6 @@
 package com.example.commerce.member.domain;
 
+import com.example.commerce.common.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Member {
+public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,7 +21,6 @@ public class Member {
     @Column(nullable = false)
     private String password;
     private String name;
-    private LocalDateTime createtime = LocalDateTime.now();
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Role role = Role.USER;

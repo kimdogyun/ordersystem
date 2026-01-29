@@ -6,13 +6,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
-
+@Component
 public class JwtTokenProvider {
     @Value("${jwt.secretKey}")
     private String st_secret_key;

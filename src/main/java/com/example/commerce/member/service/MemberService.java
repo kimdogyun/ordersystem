@@ -1,13 +1,11 @@
 package com.example.commerce.member.service;
 
 import com.example.commerce.member.domain.Member;
-import com.example.commerce.member.dtos.MemberCreateDto;
-import com.example.commerce.member.dtos.MemberListDto;
-import com.example.commerce.member.dtos.MemberUpdatePasswordDto;
-import com.example.commerce.member.dtos.MemberloginDto;
+import com.example.commerce.member.dtos.*;
 import com.example.commerce.member.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,13 +27,13 @@ public class MemberService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void save(MemberCreateDto dto) {
+    public Member save(MemberCreateDto dto) {
         if (memberRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이메일 중복임");
         }
 
-        Member member = dto.toENtity(passwordEncoder.encode(dto.getPassword()));
-        memberRepository.save(member);
+        Member member = dto.toEntity(passwordEncoder.encode(dto.getPassword()));
+        return memberRepository.save(member);
     }
 
     public Member login(MemberloginDto dto) {
@@ -59,5 +57,19 @@ public class MemberService {
     public List<MemberListDto> findAll(){
         return memberRepository.findAll().stream().map(m->MemberListDto.fromEntity(m)).collect((Collectors.toList()));
 
+    }
+    public MemberDetailDto myinfo(){
+    String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+    Optional<Member>optionalMember = memberRepository.findByEmail(email);
+    Member member = optionalMember.orElseThrow(()->new NoSuchElementException("X"));
+    MemberDetailDto dto = MemberDetailDto.fromEntity(member);
+    return dto;
+
+    }
+    public MemberDetailDto findById(Long id){
+        Optional<Member>optionalMember = memberRepository.findById(id);
+        Member member = optionalMember.orElseThrow(()-> new EntityNotFoundException("X"));
+        MemberDetailDto dto = MemberDetailDto.fromEntity(member);
+        return dto;
     }
 }
