@@ -6,6 +6,7 @@ import com.example.commerce.ordering.domain.OrderStatus;
 import com.example.commerce.ordering.domain.Ordering;
 import com.example.commerce.ordering.domain.OrderingDetail;
 import com.example.commerce.ordering.dtos.OderingCreateDto;
+import com.example.commerce.ordering.dtos.OrderingListDto;
 import com.example.commerce.ordering.repository.OrderingDetailRepository;
 import com.example.commerce.ordering.repository.OrderingRepository;
 import com.example.commerce.product.domain.Product;
@@ -13,9 +14,11 @@ import com.example.commerce.product.repository.ProductRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -33,11 +36,10 @@ public class OrderingService {
         this.memberRepository = memberRepository;
         this.productRepository = productRepository;
         this.orderingDetailRepository = orderingDetailRepository;
-
-
     }
 
-    public Long create(String email, List<OderingCreateDto> dtoList) {
+    public void create(List<OderingCreateDto> dtoList) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("X"));
         Ordering ordering = Ordering.builder()
                 .member(member)
@@ -47,13 +49,30 @@ public class OrderingService {
         for (OderingCreateDto dto : dtoList) {
             Product product = productRepository.findById(dto.getProductId())
                     .orElseThrow(() -> new EntityNotFoundException("X"));
-
             OrderingDetail detail = dto.toEntity(ordering, product);
             orderingDetailRepository.save(detail);
-
         }
-        return ordering.getId();
+    }
 
+    public List<OrderingListDto> findAll() {
 
+        List<Ordering> orderingList = orderingRepository.findAll();
+        List<OrderingListDto> dtoList = new ArrayList<>();
+        for (Ordering o : orderingList) {
+            OrderingListDto dto = OrderingListDto.fromEntity(o);
+            dtoList.add(dto);
+        }
+        return dtoList;
+    }
+
+    public List<OrderingListDto> findMyOrders() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        List<Ordering> orderingList = orderingRepository.findByMemberEmail(email);
+        List<OrderingListDto> dtoList = new ArrayList<>();
+        for (Ordering o : orderingList) {
+            OrderingListDto dto = OrderingListDto.fromEntity(o);
+            dtoList.add(dto);
+        }
+        return dtoList;
     }
 }

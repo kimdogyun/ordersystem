@@ -14,7 +14,7 @@ public class MemberloginDto {
     private String email;
     private String password;
 
-    public static MemberloginDto fromEntity(Member member){
+    public static MemberloginDto fromEntity(Member member) {
         return MemberloginDto.builder()
                 .email(member.getEmail())
                 .password(member.getPassword())

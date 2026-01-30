@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class OderingCreateDto {
-    private Long productId ;
+    private Long productId;
     private int productCount;
 
 

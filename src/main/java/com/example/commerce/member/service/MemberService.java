@@ -41,34 +41,40 @@ public class MemberService {
         boolean check = true;
         if (!optionalMember.isPresent()) {
             check = false;
-        }if (!passwordEncoder.matches(dto.getPassword(),optionalMember.get().getPassword())){
+        }
+        if (!passwordEncoder.matches(dto.getPassword(), optionalMember.get().getPassword())) {
             check = false;
-        }if (!check){
+        }
+        if (!check) {
             throw new IllegalArgumentException("이메일 또는 비밀번호 중복임.");
         }
         return optionalMember.get();
     }
-    public void updatepassword(MemberUpdatePasswordDto dto){
-    Optional<Member>optionalMember=memberRepository.findByEmail(dto.getEmail());
-    Member member = optionalMember.orElseThrow(()->new EntityNotFoundException("X"));
-    member.updatePassword(dto.getPassword());
+
+    public void updatepassword(MemberUpdatePasswordDto dto) {
+        Optional<Member> optionalMember = memberRepository.findByEmail(dto.getEmail());
+        Member member = optionalMember.orElseThrow(() -> new EntityNotFoundException("X"));
+        member.updatePassword(dto.getPassword());
 
     }
-    public List<MemberListDto> findAll(){
-        return memberRepository.findAll().stream().map(m->MemberListDto.fromEntity(m)).collect((Collectors.toList()));
+
+    public List<MemberListDto> findAll() {
+        return memberRepository.findAll().stream().map(m -> MemberListDto.fromEntity(m)).collect((Collectors.toList()));
 
     }
-    public MemberDetailDto myinfo(){
-    String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-    Optional<Member>optionalMember = memberRepository.findByEmail(email);
-    Member member = optionalMember.orElseThrow(()->new NoSuchElementException("X"));
-    MemberDetailDto dto = MemberDetailDto.fromEntity(member);
-    return dto;
+
+    public MemberDetailDto myinfo() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        Member member = optionalMember.orElseThrow(() -> new NoSuchElementException("X"));
+        MemberDetailDto dto = MemberDetailDto.fromEntity(member);
+        return dto;
 
     }
-    public MemberDetailDto findById(Long id){
-        Optional<Member>optionalMember = memberRepository.findById(id);
-        Member member = optionalMember.orElseThrow(()-> new EntityNotFoundException("X"));
+
+    public MemberDetailDto findById(Long id) {
+        Optional<Member> optionalMember = memberRepository.findById(id);
+        Member member = optionalMember.orElseThrow(() -> new EntityNotFoundException("X"));
         MemberDetailDto dto = MemberDetailDto.fromEntity(member);
         return dto;
     }

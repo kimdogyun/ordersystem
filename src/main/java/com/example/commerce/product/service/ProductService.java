@@ -1,5 +1,6 @@
 package com.example.commerce.product.service;
 
+import com.example.commerce.member.domain.Member;
 import com.example.commerce.product.domain.Product;
 import com.example.commerce.product.dtos.ProductCreateDto;
 import com.example.commerce.product.dtos.ProductDetailDto;
@@ -12,12 +13,18 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,15 +33,37 @@ import java.util.Optional;
 @Transactional
 public class ProductService {
     private final ProductRepository productRepository;
+    private final S3Client s3Client;
+    @Value("${aws.s3.bucket1}")
+    private String bucket;
 
     @Autowired
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, S3Client s3Client) {
         this.productRepository = productRepository;
+        this.s3Client = s3Client;
     }
 
-    public Product save(ProductCreateDto dto) {
-        Product product = dto.toEnntity();
-        return productRepository.save(product);
+    public void save(ProductCreateDto dto, MultipartFile productImage) {
+        Product product = dto.toEntity();
+        productRepository.save(product);
+        if (productImage != null) {
+            String fileName = "product-" + product.getId() + "-productimage-" + productImage.getOriginalFilename();
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(fileName)
+                    .contentType(productImage.getContentType())
+                    .build();
+            try {
+                s3Client.putObject(request, RequestBody.fromBytes(productImage.getBytes()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            String imgUrl = s3Client.utilities()
+                    .getUrl(a -> a.bucket(bucket).key(fileName))
+                    .toExternalForm();
+
+            product.updateProductImage(imgUrl);
+        }
     }
 
     public Page<ProductListDto> findAll(Pageable pageable, ProductSearchDto searchdto) {
@@ -55,13 +84,10 @@ public class ProductService {
                 }
                 Predicate predicate = criteriaBuilder.and(predicateArr);
                 return predicate;
-
             }
         };
         Page<Product> productPage = productRepository.findAll(specification, pageable);
         return productPage.map(p -> ProductListDto.fromEntity(p));
-
-
     }
 
     public ProductDetailDto findById(Long id) {

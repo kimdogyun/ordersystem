@@ -20,28 +20,24 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/product")
 public class ProductController {
     private final ProductService productService;
+
     @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
-
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestPart("product") ProductCreateDto dto,
-                                    @RequestPart("productImage")MultipartFile productImage){
-        Product product=productService.save(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(product.getId());
-
+    public void create(@RequestPart("product") ProductCreateDto dto,
+                       @RequestPart("productImage") MultipartFile productImage) {
+        productService.save(dto, productImage);
     }
     @GetMapping("/list")
-    public Page<ProductListDto>findAll(@PageableDefault(size = 10,sort="id",direction = Sort.Direction.DESC)
-                                        Pageable pageable, @ModelAttribute ProductSearchDto searchDto){
-        return productService.findAll(pageable,searchDto);
-
+    public Page<ProductListDto> findAll(@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)
+                                        Pageable pageable, @ModelAttribute ProductSearchDto searchDto) {
+        return productService.findAll(pageable, searchDto);
     }
     @GetMapping("/{id}")
-    public ProductDetailDto findById(@PathVariable Long id){
+    public ProductDetailDto findById(@PathVariable Long id) {
         ProductDetailDto dto = productService.findById(id);
         return dto;
     }
-
 }

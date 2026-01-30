@@ -54,19 +54,20 @@ public class MemberController {
         List<MemberListDto> dtoList = memberService.findAll();
         return dtoList;
     }
+
     @GetMapping("/myinfo")
-    public ResponseEntity<?>myinfo(@AuthenticationPrincipal String principal){
+    public ResponseEntity<?> myinfo(@AuthenticationPrincipal String principal) {
         MemberDetailDto dto = memberService.myinfo();
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
-    @GetMapping("/{id}")
-    public MemberDetailDto findById(@PathVariable Long id){
 
-            MemberDetailDto dto = memberService.findById(id);
-            return dto;
+    @GetMapping("/{id}")
+    public MemberDetailDto findById(@PathVariable Long id) {
+
+        MemberDetailDto dto = memberService.findById(id);
+        return dto;
 
 
     }
-
 
 }

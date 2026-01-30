@@ -17,7 +17,7 @@ public class ProductCreateDto {
     private int stockQuantuty;
     private String imagePath;
 
-    public Product toEnntity(){
+    public Product toEntity() {
         return Product.builder()
                 .name(this.name)
                 .price(this.price)

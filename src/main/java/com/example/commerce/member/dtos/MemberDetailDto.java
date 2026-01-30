@@ -16,8 +16,7 @@ public class MemberDetailDto {
     private String email;
 
 
-
-    public static MemberDetailDto fromEntity(Member member){
+    public static MemberDetailDto fromEntity(Member member) {
         return MemberDetailDto.builder()
                 .id(member.getId())
                 .name(member.getName())

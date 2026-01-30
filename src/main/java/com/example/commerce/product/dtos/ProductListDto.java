@@ -18,7 +18,7 @@ public class ProductListDto {
     private int stockQuantity;
     private String imagePath;
 
-    public static ProductListDto fromEntity(Product product){
+    public static ProductListDto fromEntity(Product product) {
         return ProductListDto.builder()
                 .id(product.getId())
                 .name(product.getName())
