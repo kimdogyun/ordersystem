@@ -5,6 +5,7 @@ import com.example.commerce.member.domain.Member;
 import com.example.commerce.member.dtos.*;
 import com.example.commerce.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,19 +28,21 @@ public class MemberController {
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody MemberCreateDto dto) {
-        Member member = memberService.save(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(member.getId());
+        Long id = memberService.save(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(id);
 
     }
 
-    @PostMapping("/login")
-    public MemberTokenDto login(@RequestBody MemberloginDto dto) {
+    @PostMapping("/dologin")
+    public ResponseEntity<?> dologin(@RequestBody MemberloginDto dto) {
         Member member = memberService.login(dto);
-        String accestoken = jwtTokenProvider.createToken(member);
+        String accessToken = jwtTokenProvider.createToken(member);
+//        refresh 생성
         MemberTokenDto dtoToken = MemberTokenDto.builder()
-                .accesToken(accestoken)
+                .accessToken(accessToken)
+                .refreshToken(null)
                 .build();
-        return dtoToken;
+        return ResponseEntity.status(HttpStatus.OK).body(dtoToken);
     }
 
     @PostMapping("/update/password")
@@ -56,15 +59,14 @@ public class MemberController {
     }
 
     @GetMapping("/myinfo")
-    public ResponseEntity<?> myinfo(@AuthenticationPrincipal String principal) {
-        MemberDetailDto dto = memberService.myinfo();
+    public ResponseEntity<?> myinfo(@AuthenticationPrincipal String email) {
+        MemberDetailDto dto = memberService.myinfo(email);
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/detail/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public MemberDetailDto findById(@PathVariable Long id) {
-
         MemberDetailDto dto = memberService.findById(id);
         return dto;
 

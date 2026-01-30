@@ -30,20 +30,18 @@ public class ProductController {
     }
     @PostMapping("/create")
     @PreAuthorize(("hasRole('ADMIN')"))
-    public ResponseEntity<?> create(@ModelAttribute ProductCreateDto dto,
-                       @RequestPart(value = "productImage", required = false) MultipartFile productImage) {
-        Long id = productService.save(dto, productImage);
-
+    public ResponseEntity<?> create(@ModelAttribute ProductCreateDto dto) {
+        Long id = productService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
     @GetMapping("/list")
-    public Page<ProductListDto> findAll(@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)
-                                        Pageable pageable, @ModelAttribute ProductSearchDto searchDto) {
-        return productService.findAll(pageable, searchDto);
+    public ResponseEntity<?> findAll(Pageable pageable, @ModelAttribute ProductSearchDto searchDto) {
+        Page<ProductListDto> productListDtos = productService.findAll(pageable, searchDto);
+        return ResponseEntity.status(HttpStatus.OK).body(productListDtos);
     }
-    @GetMapping("/{id}")
-    public ProductDetailDto findById(@PathVariable Long id) {
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?> findById(@PathVariable Long id) {
         ProductDetailDto dto = productService.findById(id);
-        return dto;
+        return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
 }

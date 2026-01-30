@@ -27,13 +27,14 @@ public class MemberService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Member save(MemberCreateDto dto) {
+    public Long save(MemberCreateDto dto) {
         if (memberRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이메일 중복임");
         }
 
         Member member = dto.toEntity(passwordEncoder.encode(dto.getPassword()));
-        return memberRepository.save(member);
+        memberRepository.save(member);
+        return member.getId();
     }
 
     public Member login(MemberloginDto dto) {
@@ -63,8 +64,8 @@ public class MemberService {
 
     }
 
-    public MemberDetailDto myinfo() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+    public MemberDetailDto myinfo(String email) {
+
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
         Member member = optionalMember.orElseThrow(() -> new NoSuchElementException("X"));
         MemberDetailDto dto = MemberDetailDto.fromEntity(member);

@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,30 +47,30 @@ public class ProductService {
         this.s3Client = s3Client;
     }
 
-    public Long save(ProductCreateDto dto, MultipartFile productImage) {
-        Product product = dto.toEntity();
-        Member admin = memberRepository.findById(1L).orElseThrow();
-        product.setMember(admin);
+    public Long save(ProductCreateDto dto) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("X"));
+        Product product = dto.toEntity(member);
         productRepository.save(product);
-//        if (productImage != null) {
-//            String fileName = "product-" + product.getId() + "-productimage-" + productImage.getOriginalFilename();
-//            PutObjectRequest request = PutObjectRequest.builder()
-//                    .bucket(bucket)
-//                    .key(fileName)
-//                    .contentType(productImage.getContentType())
-//                    .build();
-//            try {
-//                s3Client.putObject(request, RequestBody.fromBytes(productImage.getBytes()));
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//            String imgUrl = s3Client.utilities()
-//                    .getUrl(a -> a.bucket(bucket).key(fileName))
-//                    .toExternalForm();
-//
-//            product.updateProductImage(imgUrl);
-//
-//        }
+        if (dto.getProductImage() != null) {
+            String fileName = "product-" + product.getId() + "-" + dto.getProductImage().getOriginalFilename();
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(fileName)
+                    .contentType(dto.getProductImage().getContentType())
+                    .build();
+            try {
+                s3Client.putObject(request, RequestBody.fromBytes(dto.getProductImage().getBytes()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            String imgUrl = s3Client.utilities()
+                    .getUrl(a -> a.bucket(bucket).key(fileName))
+                    .toExternalForm();
+
+            product.updateProductImage(imgUrl);
+
+        }
         return product.getId();
     }
 
@@ -83,7 +84,7 @@ public class ProductService {
 
                 }
                 if (searchdto.getCategory() != null) {
-                    predicateList.add(criteriaBuilder.like(root.get("category"), "%" + searchdto.getCategory() + "%"));
+                    predicateList.add(criteriaBuilder.equal(root.get("category"), searchdto.getCategory()));
                 }
                 Predicate[] predicateArr = new Predicate[predicateList.size()];
                 for (int i = 0; i < predicateArr.length; i++) {

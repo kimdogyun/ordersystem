@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @NoArgsConstructor
 @Builder
 public class MemberTokenDto {
-    private String accesToken;
+    private String accessToken;
     private String refreshToken;
 
 }

@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -37,32 +38,37 @@ public class OrderingService {
         this.productRepository = productRepository;
         this.orderingDetailRepository = orderingDetailRepository;
     }
-
-    public void create(List<OderingCreateDto> dtoList) {
+    public Long create( List<OderingCreateDto> orderCreateDtoList){
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("X"));
+        Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("member is not found"));
         Ordering ordering = Ordering.builder()
                 .member(member)
-                .orderStatus(OrderStatus.ORDERED)
                 .build();
-        orderingRepository.save(ordering);
-        for (OderingCreateDto dto : dtoList) {
-            Product product = productRepository.findById(dto.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("X"));
-            OrderingDetail detail = dto.toEntity(ordering, product);
-            orderingDetailRepository.save(detail);
+        for (OderingCreateDto dto : orderCreateDtoList){
+            Product product = productRepository.findById(dto.getProductId()).orElseThrow(()->new EntityNotFoundException("entity is not found"));
+            OrderingDetail orderDetail = OrderingDetail.builder()
+                    .ordering(ordering)
+                    .product(product)
+                    .quantity(dto.getProductCount())
+                    .build();
+            ordering.getOrderingDetailsList().add(orderDetail);
         }
+        orderingRepository.save(ordering);
+
+
+        return ordering.getId();
     }
 
     public List<OrderingListDto> findAll() {
 
         List<Ordering> orderingList = orderingRepository.findAll();
-        List<OrderingListDto> dtoList = new ArrayList<>();
-        for (Ordering o : orderingList) {
-            OrderingListDto dto = OrderingListDto.fromEntity(o);
-            dtoList.add(dto);
-        }
-        return dtoList;
+        return orderingRepository.findAll().stream().map(o->OrderingListDto.fromEntity(o)).collect(Collectors.toList());
+//        List<OrderingListDto> dtoList = new ArrayList<>();
+//        for (Ordering o : orderingList) {
+//            OrderingListDto dto = OrderingListDto.fromEntity(o);
+//            dtoList.add(dto);
+//        }
+//        return dtoList;
     }
 
     public List<OrderingListDto> findMyOrders() {

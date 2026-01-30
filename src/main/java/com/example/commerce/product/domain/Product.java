@@ -3,12 +3,10 @@ package com.example.commerce.product.domain;
 import com.example.commerce.common.domain.BaseTimeEntity;
 import com.example.commerce.member.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -34,8 +32,4 @@ public class Product extends BaseTimeEntity {
     public void updateProductImage(String imagePathUrl) {
         this.imagePathUrl = imagePathUrl;
     }
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
 }

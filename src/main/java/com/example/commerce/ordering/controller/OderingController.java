@@ -24,19 +24,22 @@ public class OderingController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@RequestBody List<OderingCreateDto> dtoList) {
-        orderingService.create(dtoList);
+    public ResponseEntity<?> create(@RequestBody List<OderingCreateDto> dtoList) {
+        Long id = orderingService.create(dtoList);
+        return ResponseEntity.status(HttpStatus.OK).body(id);
 
     }
 
     @GetMapping("/list")
     @PreAuthorize(("hasRole('ADMIN')"))
-    public List<OrderingListDto> list() {
-        return orderingService.findAll();
+    public ResponseEntity<?> list() {
+        List<OrderingListDto> orderingListDtos = orderingService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(orderingListDtos);
     }
 
     @GetMapping("/myorders")
-    public List<OrderingListDto> myorders() {
-        return orderingService.findMyOrders();
+    public ResponseEntity<?> myorders() {
+        List<OrderingListDto>orderingListDtos = orderingService.findMyOrders();
+        return ResponseEntity.status(HttpStatus.OK).body(orderingListDtos);
     }
 }
