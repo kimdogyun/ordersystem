@@ -43,7 +43,7 @@ public class ProductService {
         this.s3Client = s3Client;
     }
 
-    public void save(ProductCreateDto dto, MultipartFile productImage) {
+    public Long save(ProductCreateDto dto, MultipartFile productImage) {
         Product product = dto.toEntity();
         productRepository.save(product);
         if (productImage != null) {
@@ -63,7 +63,9 @@ public class ProductService {
                     .toExternalForm();
 
             product.updateProductImage(imgUrl);
+
         }
+        return product.getId();
     }
 
     public Page<ProductListDto> findAll(Pageable pageable, ProductSearchDto searchdto) {

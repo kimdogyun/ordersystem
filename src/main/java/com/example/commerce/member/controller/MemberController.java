@@ -62,6 +62,7 @@ public class MemberController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public MemberDetailDto findById(@PathVariable Long id) {
 
         MemberDetailDto dto = memberService.findById(id);

@@ -14,16 +14,15 @@ public class ProductCreateDto {
     private String name;
     private int price;
     private String category;
-    private int stockQuantuty;
-    private String imagePath;
+    private int stockQuantity;
+
 
     public Product toEntity() {
         return Product.builder()
                 .name(this.name)
                 .price(this.price)
                 .category(this.category)
-                .stockQuantity(this.stockQuantuty)
-                .imagePath(this.imagePath)
+                .stockQuantity(this.stockQuantity)
                 .build();
     }
 }
