@@ -1,6 +1,7 @@
 package com.example.commerce.product.service;
 
 import com.example.commerce.member.domain.Member;
+import com.example.commerce.member.repository.MemberRepository;
 import com.example.commerce.product.domain.Product;
 import com.example.commerce.product.dtos.ProductCreateDto;
 import com.example.commerce.product.dtos.ProductDetailDto;
@@ -33,38 +34,42 @@ import java.util.Optional;
 @Transactional
 public class ProductService {
     private final ProductRepository productRepository;
+    private final MemberRepository memberRepository;
     private final S3Client s3Client;
     @Value("${aws.s3.bucket1}")
     private String bucket;
 
     @Autowired
-    public ProductService(ProductRepository productRepository, S3Client s3Client) {
+    public ProductService(ProductRepository productRepository, MemberRepository memberRepository, S3Client s3Client) {
         this.productRepository = productRepository;
+        this.memberRepository = memberRepository;
         this.s3Client = s3Client;
     }
 
     public Long save(ProductCreateDto dto, MultipartFile productImage) {
         Product product = dto.toEntity();
+        Member admin = memberRepository.findById(1L).orElseThrow();
+        product.setMember(admin);
         productRepository.save(product);
-        if (productImage != null) {
-            String fileName = "product-" + product.getId() + "-productimage-" + productImage.getOriginalFilename();
-            PutObjectRequest request = PutObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(fileName)
-                    .contentType(productImage.getContentType())
-                    .build();
-            try {
-                s3Client.putObject(request, RequestBody.fromBytes(productImage.getBytes()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            String imgUrl = s3Client.utilities()
-                    .getUrl(a -> a.bucket(bucket).key(fileName))
-                    .toExternalForm();
-
-            product.updateProductImage(imgUrl);
-
-        }
+//        if (productImage != null) {
+//            String fileName = "product-" + product.getId() + "-productimage-" + productImage.getOriginalFilename();
+//            PutObjectRequest request = PutObjectRequest.builder()
+//                    .bucket(bucket)
+//                    .key(fileName)
+//                    .contentType(productImage.getContentType())
+//                    .build();
+//            try {
+//                s3Client.putObject(request, RequestBody.fromBytes(productImage.getBytes()));
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//            String imgUrl = s3Client.utilities()
+//                    .getUrl(a -> a.bucket(bucket).key(fileName))
+//                    .toExternalForm();
+//
+//            product.updateProductImage(imgUrl);
+//
+//        }
         return product.getId();
     }
 

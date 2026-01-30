@@ -17,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
+
 @RestController
 @RequestMapping("/product")
 public class ProductController {
@@ -29,7 +31,7 @@ public class ProductController {
     @PostMapping("/create")
     @PreAuthorize(("hasRole('ADMIN')"))
     public ResponseEntity<?> create(@ModelAttribute ProductCreateDto dto,
-                       @RequestPart("productImage") MultipartFile productImage) {
+                       @RequestPart(value = "productImage", required = false) MultipartFile productImage) {
         Long id = productService.save(dto, productImage);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(id);

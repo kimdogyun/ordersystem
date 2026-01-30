@@ -33,8 +33,9 @@ public class Product extends BaseTimeEntity {
 
     public void updateProductImage(String imagePathUrl) {
         this.imagePathUrl = imagePathUrl;
-
-
+    }
+    public void setMember(Member member) {
+        this.member = member;
     }
 
 }
