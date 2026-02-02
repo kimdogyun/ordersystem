@@ -32,6 +32,7 @@ public class RedisConfig {
     @Bean
     @Qualifier("rtInventory")
 //    모든 template 중에 무조건 redisTemplate 이라는 메서드명이 반드시 1개는 있어야함.
+//    bean 객체 생성시 bean 객체간에 DI(의존성주입)는 "메서드 파라미터 주입"이 가능
     public RedisTemplate <String, String> redisTemplate(@Qualifier("rtInventory") RedisConnectionFactory redisConnectionFactory){
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
