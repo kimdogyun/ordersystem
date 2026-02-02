@@ -37,7 +37,21 @@ public class MemberController {
     public ResponseEntity<?> dologin(@RequestBody MemberloginDto dto) {
         Member member = memberService.login(dto);
         String accessToken = jwtTokenProvider.createToken(member);
-//        refresh 생성
+//        refresh 생성 및 저장
+        String refreshToken = jwtTokenProvider.createRtToken(member);
+        MemberTokenDto dtoToken = MemberTokenDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(dtoToken);
+    }
+    @PostMapping("/refresh-at")
+    public ResponseEntity<?> refreshAt(@RequestBody RefreshTokenDto dto){
+//        rt 검증(1.토큰 자체 검증 2.redis 조회 검증)
+        Member member = jwtTokenProvider.validateRt(dto.getRefreshToken());
+//        at신규 생성
+        String accessToken = jwtTokenProvider.createToken(member);
+//        refresh 생성 및 저장
         MemberTokenDto dtoToken = MemberTokenDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(null)

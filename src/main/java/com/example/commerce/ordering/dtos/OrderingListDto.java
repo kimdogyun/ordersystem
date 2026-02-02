@@ -23,8 +23,8 @@ public class OrderingListDto {
 
     public static OrderingListDto fromEntity(Ordering ordering) {
         List<OrderDetailDto> orderDetailDtos = new ArrayList<>();
-        for (OrderingDetail orderingDetail : ordering.getOrderingDetailsList()){
-                orderDetailDtos.add(OrderDetailDto.)
+        for (OrderingDetail orderDetail : ordering.getOrderingDetailsList()){
+            orderDetailDtos.add(OrderDetailDto.fromEntity(orderDetail));
         }
         OrderingListDto orderingListDto = OrderingListDto.builder()
                 .id(ordering.getId())
@@ -32,7 +32,6 @@ public class OrderingListDto {
                 .orderStatus(ordering.getOrderStatus())
                 .orderDetails(orderDetailDtos)
                 .build();
-        return
+        return orderingListDto;
     }
-
 }

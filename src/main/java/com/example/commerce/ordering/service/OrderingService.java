@@ -1,5 +1,6 @@
 package com.example.commerce.ordering.service;
 
+import com.example.commerce.common.service.SseAlramService;
 import com.example.commerce.member.domain.Member;
 import com.example.commerce.member.repository.MemberRepository;
 import com.example.commerce.ordering.domain.OrderStatus;
@@ -30,13 +31,15 @@ public class OrderingService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final OrderingDetailRepository orderingDetailRepository;
+    private final SseAlramService sseAlramService;
 
     @Autowired
-    public OrderingService(OrderingRepository orderingRepository, MemberRepository memberRepository, ProductRepository productRepository, OrderingDetailRepository orderingDetailRepository) {
+    public OrderingService(OrderingRepository orderingRepository, MemberRepository memberRepository, ProductRepository productRepository, OrderingDetailRepository orderingDetailRepository, SseAlramService sseAlramService) {
         this.orderingRepository = orderingRepository;
         this.memberRepository = memberRepository;
         this.productRepository = productRepository;
         this.orderingDetailRepository = orderingDetailRepository;
+        this.sseAlramService = sseAlramService;
     }
     public Long create( List<OderingCreateDto> orderCreateDtoList){
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
@@ -46,6 +49,10 @@ public class OrderingService {
                 .build();
         for (OderingCreateDto dto : orderCreateDtoList){
             Product product = productRepository.findById(dto.getProductId()).orElseThrow(()->new EntityNotFoundException("entity is not found"));
+            if (product.getStockQuantity()<dto.getProductCount()){
+                throw new IllegalArgumentException("재고가 부족합니다.");
+            }
+            product.updateStockQuantity(dto.getProductCount());
             OrderingDetail orderDetail = OrderingDetail.builder()
                     .ordering(ordering)
                     .product(product)
@@ -54,8 +61,9 @@ public class OrderingService {
             ordering.getOrderingDetailsList().add(orderDetail);
         }
         orderingRepository.save(ordering);
-
-
+//        주문성공시 admin유저에게 알림메시지 전송
+        String message = ordering.getId() + "번 주문이 들어왔습니다.";
+        sseAlramService.sendMessage("admin@naver.com", email, message);
         return ordering.getId();
     }
 

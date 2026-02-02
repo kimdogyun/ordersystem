@@ -13,8 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class OderingCreateDto {
-    private Long detailId;
-    private String productName;
+    private Long productId;
     private int productCount;
     public static OrderDetailDto fromEntity(OrderingDetail orderingDetail){
         return OrderDetailDto.builder()

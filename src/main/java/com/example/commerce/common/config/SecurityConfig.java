@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationHandler))
 
-                .authorizeHttpRequests(a -> a.requestMatchers("/member/create", "/member/dologin", "/product/list")
+                .authorizeHttpRequests(a -> a.requestMatchers("/member/create", "/member/dologin", "/member/refresh-at","/product/list")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
